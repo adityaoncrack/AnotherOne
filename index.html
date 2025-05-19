@@ -1,0 +1,156 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Aditya & Sreetama - Friendship Timer</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      color: white;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      animation: rgbBreathing 10s infinite;
+    }
+
+    @keyframes rgbBreathing {
+      0% { background-color: #ff4d4d; }
+      25% { background-color: #4dff88; }
+      50% { background-color: #4d88ff; }
+      75% { background-color: #ff4dff; }
+      100% { background-color: #ff4d4d; }
+    }
+
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 0.5em;
+    }
+
+    #timer {
+      font-size: 2rem;
+      margin-bottom: 1em;
+    }
+
+    .quote {
+      font-style: italic;
+      font-size: 1.5rem;
+      margin-top: 1em;
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Aditya & Sreetama</h1>
+  <div id="timer"></div>
+  <div class="quote">"You're always on my mind"</div>
+
+  <canvas id="confetti"></canvas>
+
+  <script>
+    // Timer logic
+    const startDate = new Date("2024-07-13T00:00:00");
+    const timer = document.getElementById('timer');
+
+    function updateTimer() {
+      const now = new Date();
+      const diff = now - startDate;
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
+
+      timer.textContent = `Friends for: ${days}d ${hours}h ${minutes}m ${seconds}s`;
+    }
+
+    setInterval(updateTimer, 1000);
+    updateTimer();
+
+    // Confetti effect
+    const canvas = document.getElementById('confetti');
+    const ctx = canvas.getContext('2d');
+    let W = window.innerWidth;
+    let H = window.innerHeight;
+    canvas.width = W;
+    canvas.height = H;
+
+    const particles = [];
+    const maxParticles = 150;
+
+    function randomColor() {
+      const colors = ['#ff4d4d', '#4dff88', '#4d88ff', '#ff4dff', '#ffff4d'];
+      return colors[Math.floor(Math.random() * colors.length)];
+    }
+
+    for (let i = 0; i < maxParticles; i++) {
+      particles.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        r: Math.random() * 6 + 4,
+        d: Math.random() * maxParticles,
+        color: randomColor(),
+        tilt: Math.floor(Math.random() * 10) - 10,
+        tiltAngle: 0
+      });
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      particles.forEach(p => {
+        ctx.beginPath();
+        ctx.lineWidth = p.r;
+        ctx.strokeStyle = p.color;
+        ctx.moveTo(p.x + p.tilt + p.r / 2, p.y);
+        ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 2);
+        ctx.stroke();
+      });
+
+      update();
+    }
+
+    function update() {
+      particles.forEach(p => {
+        p.y += Math.cos(p.d) + 1 + p.r / 2;
+        p.x += Math.sin(p.d);
+        p.tiltAngle += 0.1;
+        p.tilt = Math.sin(p.tiltAngle - (p.d / 3)) * 15;
+
+        if (p.y > H) {
+          p.y = -10;
+          p.x = Math.random() * W;
+        }
+      });
+    }
+
+    function loop() {
+      draw();
+      requestAnimationFrame(loop);
+    }
+
+    loop();
+
+    window.addEventListener('resize', () => {
+      W = window.innerWidth;
+      H = window.innerHeight;
+      canvas.width = W;
+      canvas.height = H;
+    });
+  </script>
+</body>
+</html>
